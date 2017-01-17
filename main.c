@@ -13,7 +13,7 @@
 #pragma config FCMEN = OFF      // Fail-Safe Clock Monitor Enable bit (FSCM timer disabled)
 
 // CONFIG2
-#pragma config MCLRE = OFF      // Master Clear Enable bit (MCLR pin function is port defined function)
+#pragma config MCLRE = ON       // Master Clear Enable bit (MCLR pin function is port defined function)
 #pragma config PWRTE = ON       // Power-up Timer Enable bit (PWRT enabled)
 #pragma config LPBOREN = ON     // Low-Power BOR enable bit (ULPBOR enabled)
 #pragma config BOREN = ON       // Brown-out reset enable bits (Brown-out Reset Enabled, SBOREN bit is ignored)
@@ -167,6 +167,9 @@ void main( void )
 
     // configure secondary oscillator
     SOSCEN = 1 ;
+
+    // wait for stability
+    TMR1H = 0xFC ;
 
     // configure timer1 (2.0 second) using secondary oscillatory @ 32.768 kHz
     T1CON = 0x07 ;
@@ -329,7 +332,7 @@ void main( void )
 
 
             // do alarm function
-            if( bALARM_SW == 0 )
+            if( (bALARM_SW == 0) && (bMAIN_DETECT) )
             {
                 if( (alarm_minutes == minutes) && (alarm_hours == hours) && (seconds == 0) )
                 {
