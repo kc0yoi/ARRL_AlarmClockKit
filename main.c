@@ -2,6 +2,8 @@
  * File:   main.c
  * Author: KC0YOI
  *
+ * Copyright 2016,2017 Adrian Hill
+ *
  * Created on November 10, 2016, 8:16 AM
  */
 
@@ -168,13 +170,14 @@ void main( void )
     // configure secondary oscillator
     SOSCEN = 1 ;
 
-    // wait for stability
-    TMR1H = 0xFC ;
+    // wait for stability using datasheet method
+    //TMR1H = 0xFC ;
+    //TMR1IF = 0 ;
+    //while( !TMR1IF ) ;
 
     // configure timer1 (2.0 second) using secondary oscillatory @ 32.768 kHz
     T1CON = 0x07 ;
     T1CLK = 0x06 ;
-
 
     // read configuration straps
     strap = PORTA ;
@@ -279,8 +282,7 @@ void main( void )
 
             // update display
             digit++ ;
-            if( digit >= 4 )
-                digit = 0 ;
+            digit &= 0x3 ;
 
             if( strap & JMP_CA )
             {
@@ -340,7 +342,7 @@ void main( void )
                     snoozetimer = 0 ;
                     alarmtimer = ALARMTIME ;
                 }
-                else if( bBUZZER )
+                else if( alarmsounding )
                 {
                     if( alarmtimer == 0 )
                     {
@@ -497,6 +499,7 @@ void main( void )
                 }
             }
 
+            // drive display buffer
             if( (bALARM_SW == 0) && (displaytimer) )
             {
                 // show alarm time
